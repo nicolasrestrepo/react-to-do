@@ -1,7 +1,7 @@
 
 ## React to-do
 
-testing react-beautifil-dnd
+testing react-beautiful-dnd
 
 # run
 
