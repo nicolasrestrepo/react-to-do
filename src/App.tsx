@@ -1,28 +1,72 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { DragDropContext } from 'react-beautiful-dnd';
+import initialData from './initialData';
+import Column from './components/column';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
+
+
+function App() {
+  const [state, setState]: any = useState(initialData);
+
+  const onDragEnd = (result: any) => {
+    console.log('any', result)
+    const { destination, source, draggableId } = result
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.dropplabeId === source.droppableId
+      && destination.index === source.index
+    ) {
+      return;
+    }
+
+    const column = state.columns[source.droppableId]
+    const newTasksIds = Array.from(column.taskIds)
+
+    newTasksIds.splice(source.index, 1)
+    newTasksIds.splice(destination.index, 0, draggableId)
+
+
+    const newColumn = {
+      ...column,
+      taskIds: newTasksIds
+    }
+
+    const newState = {
+      ...state,
+      columns: {
+        ...state.columns,
+        [newColumn.id]: newColumn
+      }
+    }
+
+    setState(newState)
   }
+
+  const onDragStart = (result: any) => {
+    // console.log('result', result)
+  }
+
+  return (
+    <DragDropContext
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}>
+      {state.columOrder.map((columnId: string) => {
+        const column = state.columns[columnId]
+
+        console.log('column', column)
+
+        const tasks = column.taskIds.map((taskId: any) => state.task[taskId])
+
+        console.log('tasks', tasks)
+
+        return <Column key={column.id} column={column} tasks={tasks} />
+      })}
+    </DragDropContext>
+  )
+
 }
 
 export default App;
